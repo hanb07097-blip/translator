@@ -1,24 +1,966 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Translator</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슬랭톡 - 살아있는 번역기</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2C3E50;
+            --secondary: #34495E;
+            --accent: #3498DB;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+            --bg: #F5F1E8;
+            --white: #FDFBF7;
+            --border: #E8E3D6;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --toggle-bg: #E8E3D6;
+        }
+
+        [data-theme="dark"] {
+            --primary: #E8E3D6;
+            --secondary: #BDC3C7;
+            --accent: #5DADE2;
+            --text: #ECF0F1;
+            --text-light: #95A5A6;
+            --bg: #1A1A2E;
+            --white: #16213E;
+            --border: #2C3E50;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --toggle-bg: #2C3E50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header-controls {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .language-switcher {
+            display: flex;
+            gap: 8px;
+        }
+
+        .theme-toggle {
+            background: var(--toggle-bg);
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle .icon-sun,
+        .theme-toggle .icon-moon {
+            transition: opacity 0.3s ease;
+        }
+
+        [data-theme="dark"] .icon-moon {
+            display: none;
+        }
+
+        [data-theme="dark"] .icon-sun {
+            display: inline;
+        }
+
+        :root:not([data-theme="dark"]) .icon-sun,
+        body:not([data-theme="dark"]) .icon-sun {
+            display: none;
+        }
+
+        :root:not([data-theme="dark"]) .icon-moon,
+        body:not([data-theme="dark"]) .icon-moon {
+            display: inline;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .lang-btn:hover {
+            border-color: var(--accent);
+            background: #F0F8FF;
+        }
+
+        .lang-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--white);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .translator-wrapper {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .direction-toggle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .direction-btn {
+            background: var(--white);
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .direction-btn:hover {
+            border-color: var(--accent);
+            background: #F0F8FF;
+        }
+
+        .direction-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--white);
+        }
+
+        .swap-icon {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .swap-icon:hover {
+            transform: rotate(180deg);
+            color: var(--accent);
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .input-box, .output-box {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .box-label {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.6;
+        }
+
+        textarea::placeholder {
+            color: var(--text-light);
+        }
+
+        .style-selector {
+            margin-bottom: 24px;
+        }
+
+        .style-label {
+            font-size: 0.875rem;
+            color: var(--text);
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .style-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .style-option {
+            flex: 1;
+            min-width: 120px;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .style-option:hover {
+            border-color: var(--accent);
+            background: #F0F8FF;
+        }
+
+        .style-option.selected {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--white);
+        }
+
+        .style-option.selected .style-desc {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .style-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .style-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .style-desc {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .context-section {
+            margin-bottom: 24px;
+        }
+
+        .context-label {
+            font-size: 0.875rem;
+            color: var(--text);
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .context-input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: 'Noto Sans KR', sans-serif;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .context-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .context-input:focus {
+            border-color: var(--accent);
+            background: var(--white);
+        }
+
+        .politeness-section {
+            margin-bottom: 24px;
+        }
+
+        .politeness-label {
+            font-size: 0.875rem;
+            color: var(--text);
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .toggle-container {
+            display: inline-flex;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .toggle-option {
+            padding: 10px 28px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Noto Sans KR', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-option:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .toggle-option.active {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .translate-btn {
+            width: 100%;
+            background: var(--accent);
+            border: none;
+            color: var(--white);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .translate-btn:hover {
+            background: #2980B9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .translate-btn:active {
+            transform: translateY(0);
+        }
+
+        .output-box {
+            position: relative;
+        }
+
+        .result-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            min-height: 180px;
+            color: var(--text);
+        }
+
+        .result-text.empty {
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .pronunciation-text {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .pronunciation-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent);
+            color: var(--white);
+            border-color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+
+            .translator-wrapper {
+                padding: 24px;
+            }
+
+            .style-option {
+                min-width: calc(50% - 6px);
+            }
+        }
+
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 70px auto;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-text.loading .spinner {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Translator</h1>
-      <button id="theme-toggle" class="theme-btn" aria-label="테마 변경">
-        <span class="icon-sun">☀️</span>
-        <span class="icon-moon">🌙</span>
-      </button>
-    </header>
-    <main>
-      <p>Welcome to Translator!</p>
-    </main>
-  </div>
-  <script defer type="text/javascript" src="/main.js"></script>
+    
+    <div class="container">
+        <header>
+            <div class="header-controls">
+                <button class="theme-toggle" id="themeToggle" aria-label="테마 변경">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+                <div class="language-switcher">
+                    <button class="lang-btn active" data-lang="ko">KR</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+            </div>
+            <h1>번역기</h1>
+            <p class="subtitle">간편하고 정확한 한영 번역</p>
+        </header>
+
+        <div class="translator-wrapper">
+            <div class="direction-toggle">
+                <button class="direction-btn active" data-direction="ko-en">한국어 → 영어</button>
+                <span class="swap-icon" id="swapBtn">⇄</span>
+                <button class="direction-btn" data-direction="en-ko">영어 → 한국어</button>
+            </div>
+
+            <div class="style-selector">
+                <div class="style-label">번역 스타일</div>
+                <div class="style-options">
+                    <div class="style-option selected" data-style="formal">
+                        <div class="style-name">격식체</div>
+                        <div class="style-desc">공식적이고 정중한 표현</div>
+                    </div>
+                    <div class="style-option" data-style="casual">
+                        <div class="style-name">구어체</div>
+                        <div class="style-desc">일상 대화체</div>
+                    </div>
+                    <div class="style-option" data-style="slang">
+                        <div class="style-name">속어/유행어</div>
+                        <div class="style-desc">최신 트렌드 표현</div>
+                    </div>
+                    <div class="style-option" data-style="profanity">
+                        <div class="style-name">욕설/비속어</div>
+                        <div class="style-desc">⚠️ 강한 표현 포함</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="context-section">
+                <div class="context-label">맥락 (선택사항)</div>
+                <input type="text" id="contextInput" class="context-input" placeholder="예: 친구와의 대화, 비즈니스 미팅, SNS 게시글, 게임 채팅 등">
+            </div>
+
+            <div class="politeness-section" id="politenessSection" style="display: none;">
+                <div class="politeness-label">말투 선택</div>
+                <div class="toggle-container">
+                    <button class="toggle-option active" data-politeness="formal">존댓말</button>
+                    <button class="toggle-option" data-politeness="casual">반말</button>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <div class="input-box">
+                    <div class="box-label">원문 입력</div>
+                    <textarea id="inputText" placeholder="번역할 텍스트를 입력하세요..."></textarea>
+                </div>
+                <div class="output-box">
+                    <div class="box-label">번역 결과</div>
+                    <button class="copy-btn" id="copyBtn">복사</button>
+                    <div id="resultText" class="result-text empty">
+                        번역 결과가 여기에 표시됩니다
+                    </div>
+                    <div id="pronunciationText" class="pronunciation-text" style="display: none;"></div>
+                </div>
+            </div>
+
+            <button class="translate-btn" id="translateBtn">번역하기</button>
+        </div>
+    </div>
+
+    <script>
+        let currentDirection = 'ko-en';
+        let currentStyle = 'formal';
+        let currentPoliteness = 'formal'; // 존댓말/반말
+        let currentLang = 'ko'; // 현재 인터페이스 언어
+        let currentTheme = localStorage.getItem('theme') || 'light'; // 다크/라이트 모드
+
+        // 초기 테마 적용
+        if (currentTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+
+        // 시스템 테마 감지 (저장된 설정이 없을 경우)
+        if (!localStorage.getItem('theme')) {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (prefersDark) {
+                document.body.setAttribute('data-theme', 'dark');
+                currentTheme = 'dark';
+            }
+        }
+
+        // 언어별 텍스트
+        const translations = {
+            ko: {
+                title: '번역기',
+                subtitle: '간편하고 정확한 한영 번역',
+                directionKoEn: '한국어 → 영어',
+                directionEnKo: '영어 → 한국어',
+                styleLabel: '번역 스타일',
+                styleFormal: '격식체',
+                styleFormalDesc: '공식적이고 정중한 표현',
+                styleCasual: '구어체',
+                styleCasualDesc: '일상 대화체',
+                styleSlang: '속어/유행어',
+                styleSlangDesc: '최신 트렌드 표현',
+                styleProfanity: '욕설/비속어',
+                styleProfanityDesc: '⚠️ 강한 표현 포함',
+                contextLabel: '맥락 (선택사항)',
+                contextPlaceholder: '예: 친구와의 대화, 비즈니스 미팅, SNS 게시글, 게임 채팅 등',
+                politenessLabel: '말투 선택',
+                politenessFormal: '존댓말',
+                politenessCasual: '반말',
+                inputLabel: '원문 입력',
+                inputPlaceholder: '번역할 텍스트를 입력하세요...',
+                outputLabel: '번역 결과',
+                outputPlaceholder: '번역 결과가 여기에 표시됩니다',
+                copyBtn: '복사',
+                copySuccess: '완료',
+                translateBtn: '번역하기',
+                pronunciationLabel: '발음'
+            },
+            en: {
+                title: 'Translator',
+                subtitle: 'Simple and accurate Korean-English translation',
+                directionKoEn: 'Korean → English',
+                directionEnKo: 'English → Korean',
+                styleLabel: 'Translation Style',
+                styleFormal: 'Formal',
+                styleFormalDesc: 'Official and polite expressions',
+                styleCasual: 'Casual',
+                styleCasualDesc: 'Everyday conversation',
+                styleSlang: 'Slang/Trendy',
+                styleSlangDesc: 'Latest trendy expressions',
+                styleProfanity: 'Profanity',
+                styleProfanityDesc: '⚠️ Strong language included',
+                contextLabel: 'Context (Optional)',
+                contextPlaceholder: 'e.g., Chatting with friends, Business meeting, SNS post, Gaming chat, etc.',
+                politenessLabel: 'Speech Level',
+                politenessFormal: 'Polite',
+                politenessCasual: 'Casual',
+                inputLabel: 'Input Text',
+                inputPlaceholder: 'Enter text to translate...',
+                outputLabel: 'Translation Result',
+                outputPlaceholder: 'Translation result will appear here',
+                copyBtn: 'Copy',
+                copySuccess: 'Copied',
+                translateBtn: 'Translate',
+                pronunciationLabel: 'Pronunciation'
+            }
+        };
+
+        // DOM이 로드된 후 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            // 다크모드 토글
+            document.getElementById('themeToggle').addEventListener('click', function() {
+                if (document.body.getAttribute('data-theme') === 'dark') {
+                    document.body.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    currentTheme = 'light';
+                } else {
+                    document.body.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    currentTheme = 'dark';
+                }
+            });
+
+            // 언어 전환 버튼
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentLang = this.dataset.lang;
+                    updateLanguage();
+                });
+            });
+
+            // 방향 토글
+            document.querySelectorAll('.direction-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.direction-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentDirection = this.dataset.direction;
+                    updatePlaceholder();
+                    updatePolitenessVisibility();
+                });
+            });
+
+            // 스타일 선택
+            document.querySelectorAll('.style-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    currentStyle = this.dataset.style;
+                });
+            });
+
+            // 존댓말/반말 토글
+            document.querySelectorAll('.toggle-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.toggle-option').forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                    currentPoliteness = this.dataset.politeness;
+                });
+            });
+
+            // 방향 전환 버튼
+            document.getElementById('swapBtn').addEventListener('click', function() {
+                const buttons = document.querySelectorAll('.direction-btn');
+                if (currentDirection === 'ko-en') {
+                    buttons[1].click();
+                } else {
+                    buttons[0].click();
+                }
+            });
+
+            // 번역 버튼
+            document.getElementById('translateBtn').addEventListener('click', translate);
+
+            // 복사 버튼
+            document.getElementById('copyBtn').addEventListener('click', copyResult);
+
+            // Enter 키로 번역
+            document.getElementById('inputText').addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    translate();
+                }
+            });
+        });
+
+        // 언어 업데이트 함수
+        function updateLanguage() {
+            const t = translations[currentLang];
+            
+            // 헤더
+            document.querySelector('h1').textContent = t.title;
+            document.querySelector('.subtitle').textContent = t.subtitle;
+            
+            // 방향 버튼
+            document.querySelectorAll('.direction-btn')[0].textContent = t.directionKoEn;
+            document.querySelectorAll('.direction-btn')[1].textContent = t.directionEnKo;
+            
+            // 스타일 섹션
+            document.querySelector('.style-label').textContent = t.styleLabel;
+            const styleOptions = document.querySelectorAll('.style-option');
+            styleOptions[0].querySelector('.style-name').textContent = t.styleFormal;
+            styleOptions[0].querySelector('.style-desc').textContent = t.styleFormalDesc;
+            styleOptions[1].querySelector('.style-name').textContent = t.styleCasual;
+            styleOptions[1].querySelector('.style-desc').textContent = t.styleCasualDesc;
+            styleOptions[2].querySelector('.style-name').textContent = t.styleSlang;
+            styleOptions[2].querySelector('.style-desc').textContent = t.styleSlangDesc;
+            styleOptions[3].querySelector('.style-name').textContent = t.styleProfanity;
+            styleOptions[3].querySelector('.style-desc').textContent = t.styleProfanityDesc;
+            
+            // 맥락 섹션
+            document.querySelector('.context-label').textContent = t.contextLabel;
+            document.getElementById('contextInput').placeholder = t.contextPlaceholder;
+            
+            // 존댓말/반말 섹션
+            document.querySelector('.politeness-label').textContent = t.politenessLabel;
+            document.querySelectorAll('.toggle-option')[0].textContent = t.politenessFormal;
+            document.querySelectorAll('.toggle-option')[1].textContent = t.politenessCasual;
+            
+            // 입력/출력 섹션
+            document.querySelectorAll('.box-label')[0].textContent = t.inputLabel;
+            document.querySelectorAll('.box-label')[1].textContent = t.outputLabel;
+            document.getElementById('inputText').placeholder = t.inputPlaceholder;
+            if (document.getElementById('resultText').classList.contains('empty')) {
+                document.getElementById('resultText').textContent = t.outputPlaceholder;
+            }
+            
+            // 버튼
+            document.getElementById('copyBtn').textContent = t.copyBtn;
+            document.getElementById('translateBtn').textContent = t.translateBtn;
+            
+            // 발음 라벨
+            const pronunciationLabels = document.querySelectorAll('.pronunciation-label');
+            if (pronunciationLabels.length > 0) {
+                pronunciationLabels.forEach(label => {
+                    label.textContent = t.pronunciationLabel;
+                });
+            }
+        }
+
+        function updatePolitenessVisibility() {
+            const politenessSection = document.getElementById('politenessSection');
+            // 영어→한국어일 때만 표시
+            if (currentDirection === 'en-ko') {
+                politenessSection.style.display = 'block';
+            } else {
+                politenessSection.style.display = 'none';
+            }
+        }
+
+        function updatePlaceholder() {
+            const placeholder = currentDirection === 'ko-en' 
+                ? '예: 이거 완전 대박이야!' 
+                : 'Example: This is absolutely amazing!';
+            document.getElementById('inputText').placeholder = placeholder;
+        }
+
+        async function translate() {
+            const inputText = document.getElementById('inputText').value.trim();
+            const contextText = document.getElementById('contextInput').value.trim();
+            const resultDiv = document.getElementById('resultText');
+            const pronunciationDiv = document.getElementById('pronunciationText');
+            
+            if (!inputText) {
+                alert('번역할 텍스트를 입력해주세요!');
+                return;
+            }
+
+            // 로딩 상태
+            resultDiv.innerHTML = '<div class="spinner"></div>';
+            resultDiv.classList.add('loading');
+            resultDiv.classList.remove('empty');
+            pronunciationDiv.style.display = 'none';
+
+            try {
+                let apiUrl, apiBody;
+                
+                // 욕설 모드일 때는 ChatGPT API 사용
+                if (currentStyle === 'profanity') {
+                    apiUrl = 'https://api.openai.com/v1/chat/completions';
+                    apiBody = {
+                        model: 'gpt-4',
+                        messages: [{
+                            role: 'user',
+                            content: generatePrompt(inputText, currentDirection, currentStyle, contextText, currentPoliteness)
+                        }],
+                        max_tokens: 1000
+                    };
+                } else {
+                    // 다른 모드는 Claude API 사용
+                    apiUrl = 'https://api.anthropic.com/v1/messages';
+                    apiBody = {
+                        model: 'claude-haiku-4-5-20251001',
+                        max_tokens: 1000,
+                        messages: [{
+                            role: 'user',
+                            content: generatePrompt(inputText, currentDirection, currentStyle, contextText, currentPoliteness)
+                        }]
+                    };
+                }
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(apiBody)
+                });
+
+                const data = await response.json();
+                
+                // API 응답 파싱 (ChatGPT vs Claude 형식 차이)
+                let fullResponse;
+                if (currentStyle === 'profanity') {
+                    // ChatGPT 응답 형식
+                    fullResponse = data.choices?.[0]?.message?.content || '';
+                } else {
+                    // Claude 응답 형식
+                    fullResponse = data.content
+                        .filter(item => item.type === 'text')
+                        .map(item => item.text)
+                        .join('\n');
+                }
+
+                // 영한 번역이고 발음 표기가 포함된 경우 분리
+                if (currentDirection === 'en-ko' && fullResponse.includes('---PRONUNCIATION---')) {
+                    const parts = fullResponse.split('---PRONUNCIATION---');
+                    const translatedText = parts[0].trim();
+                    const pronunciation = parts[1] ? parts[1].trim() : '';
+                    
+                    resultDiv.textContent = translatedText;
+                    
+                    if (pronunciation) {
+                        pronunciationDiv.innerHTML = `<div class="pronunciation-label">발음</div>${pronunciation}`;
+                        pronunciationDiv.style.display = 'block';
+                    }
+                } else {
+                    resultDiv.textContent = fullResponse;
+                    pronunciationDiv.style.display = 'none';
+                }
+                
+                resultDiv.classList.remove('loading');
+            } catch (error) {
+                resultDiv.textContent = '번역 중 오류가 발생했습니다. 다시 시도해주세요.';
+                resultDiv.classList.remove('loading');
+                pronunciationDiv.style.display = 'none';
+                console.error('Translation error:', error);
+            }
+        }
+
+        function generatePrompt(text, direction, style, context, politeness) {
+            const isKoToEn = direction === 'ko-en';
+            
+            let styleCode = '';
+            if (style === 'formal') {
+                styleCode = 'formal';
+            } else if (style === 'casual') {
+                styleCode = 'casual';
+            } else if (style === 'slang') {
+                styleCode = 'slang/trendy';
+            } else if (style === 'profanity') {
+                styleCode = 'profanity (must include swear words)';
+            }
+
+            let parts = [];
+            
+            // 기본 번역 지시
+            if (isKoToEn) {
+                parts.push(`Translate Korean to English, style: ${styleCode}`);
+            } else {
+                parts.push(`Translate English to Korean, style: ${styleCode}`);
+                // 존댓말/반말
+                if (politeness === 'formal') {
+                    parts.push('Use polite form (존댓말)');
+                } else {
+                    parts.push('Use casual form (반말)');
+                }
+                // 발음 표기
+                parts.push('Add "---PRONUNCIATION---" and romanization if result has full Korean words (skip if only initials like ㄹㅇ, ㅋㅋ)');
+            }
+            
+            // 맥락
+            if (context) {
+                parts.push(`Context: ${context}`);
+            }
+            
+            parts.push(`Text: ${text}`);
+            parts.push('Output only the translation, no explanations.');
+            
+            return parts.join('\n');
+        }
+
+        function copyResult() {
+            const resultText = document.getElementById('resultText').textContent;
+            if (resultText && !resultText.includes('번역 결과가 여기에')) {
+                navigator.clipboard.writeText(resultText).then(() => {
+                    const btn = document.getElementById('copyBtn');
+                    const originalText = btn.textContent;
+                    btn.textContent = '완료';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                });
+            }
+        }
+    </script>
 </body>
 </html>
