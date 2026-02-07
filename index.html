@@ -16,27 +16,13 @@
             --white: #FDFBF7;
             --border: #E8E3D6;
             --shadow: rgba(0, 0, 0, 0.08);
-            --toggle-bg: #E8E3D6;
-        }
-
-        [data-theme="dark"] {
-            --primary: #E8E3D6;
-            --secondary: #BDC3C7;
-            --accent: #5DADE2;
-            --text: #ECF0F1;
-            --text-light: #95A5A6;
-            --bg: #1A1A2E;
-            --white: #16213E;
-            --border: #2C3E50;
-            --shadow: rgba(0, 0, 0, 0.3);
-            --toggle-bg: #2C3E50;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            -webkit-tap-highlight-color: transparent; /* 모바일 터치 하이라이트 제거 */
         }
 
         body {
@@ -45,6 +31,9 @@
             color: var(--text);
             min-height: 100vh;
             padding: 40px 20px;
+            -webkit-font-smoothing: antialiased; /* 폰트 부드럽게 */
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden; /* 가로 스크롤 방지 */
         }
 
         .container {
@@ -58,59 +47,12 @@
             position: relative;
         }
 
-        .header-controls {
+        .language-switcher {
             position: absolute;
             top: 0;
             right: 0;
             display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .language-switcher {
-            display: flex;
             gap: 8px;
-        }
-
-        .theme-toggle {
-            background: var(--toggle-bg);
-            border: 2px solid var(--border);
-            border-radius: 50px;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle:hover {
-            border-color: var(--accent);
-            transform: scale(1.05);
-        }
-
-        .theme-toggle .icon-sun,
-        .theme-toggle .icon-moon {
-            transition: opacity 0.3s ease;
-        }
-
-        [data-theme="dark"] .icon-moon {
-            display: none;
-        }
-
-        [data-theme="dark"] .icon-sun {
-            display: inline;
-        }
-
-        :root:not([data-theme="dark"]) .icon-sun,
-        body:not([data-theme="dark"]) .icon-sun {
-            display: none;
-        }
-
-        :root:not([data-theme="dark"]) .icon-moon,
-        body:not([data-theme="dark"]) .icon-moon {
-            display: inline;
         }
 
         .lang-btn {
@@ -305,8 +247,21 @@
             color: var(--text-light);
         }
 
-        .context-section {
-            margin-bottom: 24px;
+        .style-option.locked {
+            opacity: 0.55;
+            cursor: not-allowed;
+            position: relative;
+            background: #eae8e2;
+        }
+
+        .style-option.locked:hover {
+            border-color: var(--border);
+            background: #eae8e2;
+        }
+
+        .lock-icon {
+            font-size: 0.85rem;
+            margin-left: 4px;
         }
 
         .context-label {
@@ -466,40 +421,190 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 20px 12px;
+            }
+
             h1 {
-                font-size: 2rem;
+                font-size: 1.75rem;
+            }
+
+            .subtitle {
+                font-size: 0.85rem;
+            }
+
+            .language-switcher {
+                position: static;
+                justify-content: center;
+                margin-bottom: 16px;
+            }
+
+            .translator-wrapper {
+                padding: 20px 16px;
+            }
+
+            .direction-toggle {
+                flex-direction: row;
+                gap: 8px;
+                padding: 8px;
+            }
+
+            .direction-btn {
+                font-size: 0.85rem;
+                padding: 10px 12px;
+            }
+
+            .swap-icon {
+                font-size: 1.2rem;
+            }
+
+            .style-options {
+                gap: 8px;
+            }
+
+            .style-option {
+                min-width: calc(50% - 4px);
+                padding: 12px 8px;
+            }
+
+            .style-name {
+                font-size: 0.85rem;
+            }
+
+            .style-desc {
+                font-size: 0.7rem;
+            }
+
+            .context-input {
+                font-size: 0.9rem;
+                padding: 10px 12px;
+            }
+
+            .politeness-section {
+                margin-bottom: 20px;
+            }
+
+            .toggle-option {
+                font-size: 0.85rem;
+                padding: 10px 16px;
             }
 
             .input-section {
                 grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            textarea {
+                min-height: 150px;
+                font-size: 0.95rem;
+            }
+
+            .box-label {
+                font-size: 0.8rem;
+            }
+
+            .copy-btn {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+
+            .translate-btn {
+                font-size: 1rem;
+                padding: 14px 28px;
+            }
+
+            .progress-label {
+                font-size: 0.8rem;
+            }
+
+            .lock-icon {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .subtitle {
+                font-size: 0.8rem;
             }
 
             .translator-wrapper {
-                padding: 24px;
+                padding: 16px 12px;
+            }
+
+            .direction-btn {
+                font-size: 0.8rem;
+                padding: 8px 10px;
             }
 
             .style-option {
-                min-width: calc(50% - 6px);
+                min-width: 100%;
+                padding: 14px 12px;
+            }
+
+            .style-name {
+                font-size: 0.9rem;
+            }
+
+            .style-desc {
+                font-size: 0.75rem;
+            }
+
+            textarea {
+                min-height: 130px;
+                font-size: 0.9rem;
+            }
+
+            .translate-btn {
+                font-size: 0.95rem;
+                padding: 12px 24px;
+            }
+
+            .lang-btn {
+                font-size: 0.85rem;
+                padding: 6px 12px;
             }
         }
 
-        .spinner {
+        .progress-container {
             display: none;
-            width: 40px;
-            height: 40px;
-            margin: 70px auto;
-            border: 3px solid var(--border);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+            width: 100%;
+            margin: 50px 0 30px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 600;
         }
 
-        .result-text.loading .spinner {
+        .progress-label .progress-status {
+            color: var(--accent);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), #5DADE2);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .result-text.loading-progress .progress-container {
             display: block;
         }
     </style>
@@ -508,15 +613,9 @@
     
     <div class="container">
         <header>
-            <div class="header-controls">
-                <button class="theme-toggle" id="themeToggle" aria-label="테마 변경">
-                    <span class="icon-sun">☀️</span>
-                    <span class="icon-moon">🌙</span>
-                </button>
-                <div class="language-switcher">
-                    <button class="lang-btn active" data-lang="ko">KR</button>
-                    <button class="lang-btn" data-lang="en">EN</button>
-                </div>
+            <div class="language-switcher">
+                <button class="lang-btn active" data-lang="ko">KR</button>
+                <button class="lang-btn" data-lang="en">EN</button>
             </div>
             <h1>번역기</h1>
             <p class="subtitle">간편하고 정확한 한영 번역</p>
@@ -542,11 +641,11 @@
                     </div>
                     <div class="style-option" data-style="slang">
                         <div class="style-name">속어/유행어</div>
-                        <div class="style-desc">최신 트렌드 표현</div>
+                        <div class="style-desc">온라인상에서 주로 쓰이는 표현</div>
                     </div>
-                    <div class="style-option" data-style="profanity">
-                        <div class="style-name">욕설/비속어</div>
-                        <div class="style-desc">⚠️ 강한 표현 포함</div>
+                    <div class="style-option locked" data-style="profanity">
+                        <div class="style-name">욕설/비속어 <span class="lock-icon">🔒</span></div>
+                        <div class="style-desc">프리미엄 기능</div>
                     </div>
                 </div>
             </div>
@@ -588,21 +687,6 @@
         let currentStyle = 'formal';
         let currentPoliteness = 'formal'; // 존댓말/반말
         let currentLang = 'ko'; // 현재 인터페이스 언어
-        let currentTheme = localStorage.getItem('theme') || 'light'; // 다크/라이트 모드
-
-        // 초기 테마 적용
-        if (currentTheme === 'dark') {
-            document.body.setAttribute('data-theme', 'dark');
-        }
-
-        // 시스템 테마 감지 (저장된 설정이 없을 경우)
-        if (!localStorage.getItem('theme')) {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (prefersDark) {
-                document.body.setAttribute('data-theme', 'dark');
-                currentTheme = 'dark';
-            }
-        }
 
         // 언어별 텍스트
         const translations = {
@@ -617,7 +701,7 @@
                 styleCasual: '구어체',
                 styleCasualDesc: '일상 대화체',
                 styleSlang: '속어/유행어',
-                styleSlangDesc: '최신 트렌드 표현',
+                styleSlangDesc: '온라인상에서 주로 쓰이는 표현',
                 styleProfanity: '욕설/비속어',
                 styleProfanityDesc: '⚠️ 강한 표현 포함',
                 contextLabel: '맥락 (선택사항)',
@@ -632,7 +716,11 @@
                 copyBtn: '복사',
                 copySuccess: '완료',
                 translateBtn: '번역하기',
-                pronunciationLabel: '발음'
+                pronunciationLabel: '발음',
+                premiumLabel: '예정된 기능',
+                premiumDesc: '욕설/비속어 번역은 예정된 기능입니다.\n빠른 시일 내 오픈될 예정입니다!',
+                premiumBtnClose: '확인',
+                lockedDesc: '예정된 기능'
             },
             en: {
                 title: 'Translator',
@@ -660,25 +748,16 @@
                 copyBtn: 'Copy',
                 copySuccess: 'Copied',
                 translateBtn: 'Translate',
-                pronunciationLabel: 'Pronunciation'
+                pronunciationLabel: 'Pronunciation',
+                premiumLabel: 'Coming Soon',
+                premiumDesc: 'Profanity translation is coming soon.\nStay tuned for updates!',
+                premiumBtnClose: 'OK',
+                lockedDesc: 'Coming Soon'
             }
         };
 
         // DOM이 로드된 후 실행
         document.addEventListener('DOMContentLoaded', function() {
-            // 다크모드 토글
-            document.getElementById('themeToggle').addEventListener('click', function() {
-                if (document.body.getAttribute('data-theme') === 'dark') {
-                    document.body.removeAttribute('data-theme');
-                    localStorage.setItem('theme', 'light');
-                    currentTheme = 'light';
-                } else {
-                    document.body.setAttribute('data-theme', 'dark');
-                    localStorage.setItem('theme', 'dark');
-                    currentTheme = 'dark';
-                }
-            });
-
             // 언어 전환 버튼
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -703,6 +782,10 @@
             // 스타일 선택
             document.querySelectorAll('.style-option').forEach(option => {
                 option.addEventListener('click', function() {
+                    // 잠금된 옵션은 클릭 차단
+                    if (this.classList.contains('locked')) {
+                        return;
+                    }
                     document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
                     this.classList.add('selected');
                     currentStyle = this.dataset.style;
@@ -763,8 +846,8 @@
             styleOptions[1].querySelector('.style-desc').textContent = t.styleCasualDesc;
             styleOptions[2].querySelector('.style-name').textContent = t.styleSlang;
             styleOptions[2].querySelector('.style-desc').textContent = t.styleSlangDesc;
-            styleOptions[3].querySelector('.style-name').textContent = t.styleProfanity;
-            styleOptions[3].querySelector('.style-desc').textContent = t.styleProfanityDesc;
+            styleOptions[3].querySelector('.style-name').innerHTML = t.styleProfanity + ' <span class="lock-icon">🔒</span>';
+            styleOptions[3].querySelector('.style-desc').textContent = t.lockedDesc;
             
             // 맥락 섹션
             document.querySelector('.context-label').textContent = t.contextLabel;
@@ -824,11 +907,42 @@
                 return;
             }
 
-            // 로딩 상태
-            resultDiv.innerHTML = '<div class="spinner"></div>';
-            resultDiv.classList.add('loading');
-            resultDiv.classList.remove('empty');
+            // 프로그레스바 표시
+            resultDiv.innerHTML = `
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span class="progress-status" id="progressStatus">${currentLang === 'ko' ? '번역 준비 중...' : 'Preparing...'}</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                </div>
+            `;
+            resultDiv.classList.add('loading-progress');
+            resultDiv.classList.remove('empty', 'loading-spinner');
             pronunciationDiv.style.display = 'none';
+
+            // 프로그레스바 단계별 진행
+            let stepIndex = 0;
+            const steps = [
+                { target: 15, label: currentLang === 'ko' ? '번역 준비 중...' : 'Preparing...' },
+                { target: 40, label: currentLang === 'ko' ? '번역 처리 중...' : 'Translating...' },
+                { target: 70, label: currentLang === 'ko' ? '결과 생성 중...' : 'Generating result...' },
+                { target: 85, label: currentLang === 'ko' ? '거의 완료...' : 'Almost done...' }
+            ];
+
+            const progressInterval = setInterval(() => {
+                const bar = document.getElementById('progressBar');
+                const percent = document.getElementById('progressPercent');
+                const status = document.getElementById('progressStatus');
+                if (bar && stepIndex < steps.length) {
+                    bar.style.width = steps[stepIndex].target + '%';
+                    percent.textContent = steps[stepIndex].target + '%';
+                    status.textContent = steps[stepIndex].label;
+                    stepIndex++;
+                }
+            }, 600);
 
             try {
                 let apiUrl, apiBody;
@@ -845,7 +959,6 @@
                         max_tokens: 1000
                     };
                 } else {
-                    // 다른 모드는 Claude API 사용
                     apiUrl = 'https://api.anthropic.com/v1/messages';
                     apiBody = {
                         model: 'claude-haiku-4-5-20251001',
@@ -867,18 +980,28 @@
 
                 const data = await response.json();
                 
-                // API 응답 파싱 (ChatGPT vs Claude 형식 차이)
+                // API 응답 파싱
                 let fullResponse;
                 if (currentStyle === 'profanity') {
-                    // ChatGPT 응답 형식
                     fullResponse = data.choices?.[0]?.message?.content || '';
                 } else {
-                    // Claude 응답 형식
                     fullResponse = data.content
                         .filter(item => item.type === 'text')
                         .map(item => item.text)
                         .join('\n');
                 }
+
+                // 프로그레스바 100% 완료
+                clearInterval(progressInterval);
+                const bar = document.getElementById('progressBar');
+                const percent = document.getElementById('progressPercent');
+                const status = document.getElementById('progressStatus');
+                if (bar) {
+                    bar.style.width = '100%';
+                    percent.textContent = '100%';
+                    status.textContent = currentLang === 'ko' ? '완료!' : 'Done!';
+                }
+                await new Promise(resolve => setTimeout(resolve, 400));
 
                 // 영한 번역이고 발음 표기가 포함된 경우 분리
                 if (currentDirection === 'en-ko' && fullResponse.includes('---PRONUNCIATION---')) {
@@ -889,7 +1012,7 @@
                     resultDiv.textContent = translatedText;
                     
                     if (pronunciation) {
-                        pronunciationDiv.innerHTML = `<div class="pronunciation-label">발음</div>${pronunciation}`;
+                        pronunciationDiv.innerHTML = `<div class="pronunciation-label">${currentLang === 'ko' ? '발음' : 'Pronunciation'}</div>${pronunciation}`;
                         pronunciationDiv.style.display = 'block';
                     }
                 } else {
@@ -897,10 +1020,11 @@
                     pronunciationDiv.style.display = 'none';
                 }
                 
-                resultDiv.classList.remove('loading');
+                resultDiv.classList.remove('loading-progress');
             } catch (error) {
-                resultDiv.textContent = '번역 중 오류가 발생했습니다. 다시 시도해주세요.';
-                resultDiv.classList.remove('loading');
+                clearInterval(progressInterval);
+                resultDiv.textContent = currentLang === 'ko' ? '번역 중 오류가 발생했습니다. 다시 시도해주세요.' : 'An error occurred. Please try again.';
+                resultDiv.classList.remove('loading-progress');
                 pronunciationDiv.style.display = 'none';
                 console.error('Translation error:', error);
             }
