@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>슬랭톡 - 살아있는 번역기</title>
+    <title>SlangTalk</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -149,6 +149,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
+            margin-top: 32px;
             margin-bottom: 24px;
         }
 
@@ -245,23 +246,6 @@
         .style-desc {
             font-size: 0.8rem;
             color: var(--text-light);
-        }
-
-        .style-option.locked {
-            opacity: 0.55;
-            cursor: not-allowed;
-            position: relative;
-            background: #eae8e2;
-        }
-
-        .style-option.locked:hover {
-            border-color: var(--border);
-            background: #eae8e2;
-        }
-
-        .lock-icon {
-            font-size: 0.85rem;
-            margin-left: 4px;
         }
 
         .context-label {
@@ -643,10 +627,6 @@
                         <div class="style-name">속어/유행어</div>
                         <div class="style-desc">온라인상에서 주로 쓰이는 표현</div>
                     </div>
-                    <div class="style-option locked" data-style="profanity">
-                        <div class="style-name">욕설/비속어 <span class="lock-icon">🔒</span></div>
-                        <div class="style-desc">프리미엄 기능</div>
-                    </div>
                 </div>
             </div>
 
@@ -702,8 +682,6 @@
                 styleCasualDesc: '일상 대화체',
                 styleSlang: '속어/유행어',
                 styleSlangDesc: '온라인상에서 주로 쓰이는 표현',
-                styleProfanity: '욕설/비속어',
-                styleProfanityDesc: '⚠️ 강한 표현 포함',
                 contextLabel: '맥락 (선택사항)',
                 contextPlaceholder: '예: 친구와의 대화, 비즈니스 미팅, SNS 게시글, 게임 채팅 등',
                 politenessLabel: '말투 선택',
@@ -716,11 +694,7 @@
                 copyBtn: '복사',
                 copySuccess: '완료',
                 translateBtn: '번역하기',
-                pronunciationLabel: '발음',
-                premiumLabel: '예정된 기능',
-                premiumDesc: '욕설/비속어 번역은 예정된 기능입니다.\n빠른 시일 내 오픈될 예정입니다!',
-                premiumBtnClose: '확인',
-                lockedDesc: '예정된 기능'
+                pronunciationLabel: '발음'
             },
             en: {
                 title: 'Translator',
@@ -734,8 +708,6 @@
                 styleCasualDesc: 'Everyday conversation',
                 styleSlang: 'Slang/Trendy',
                 styleSlangDesc: 'Latest trendy expressions',
-                styleProfanity: 'Profanity',
-                styleProfanityDesc: '⚠️ Strong language included',
                 contextLabel: 'Context (Optional)',
                 contextPlaceholder: 'e.g., Chatting with friends, Business meeting, SNS post, Gaming chat, etc.',
                 politenessLabel: 'Speech Level',
@@ -748,11 +720,7 @@
                 copyBtn: 'Copy',
                 copySuccess: 'Copied',
                 translateBtn: 'Translate',
-                pronunciationLabel: 'Pronunciation',
-                premiumLabel: 'Coming Soon',
-                premiumDesc: 'Profanity translation is coming soon.\nStay tuned for updates!',
-                premiumBtnClose: 'OK',
-                lockedDesc: 'Coming Soon'
+                pronunciationLabel: 'Pronunciation'
             }
         };
 
@@ -782,10 +750,6 @@
             // 스타일 선택
             document.querySelectorAll('.style-option').forEach(option => {
                 option.addEventListener('click', function() {
-                    // 잠금된 옵션은 클릭 차단
-                    if (this.classList.contains('locked')) {
-                        return;
-                    }
                     document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
                     this.classList.add('selected');
                     currentStyle = this.dataset.style;
@@ -846,8 +810,6 @@
             styleOptions[1].querySelector('.style-desc').textContent = t.styleCasualDesc;
             styleOptions[2].querySelector('.style-name').textContent = t.styleSlang;
             styleOptions[2].querySelector('.style-desc').textContent = t.styleSlangDesc;
-            styleOptions[3].querySelector('.style-name').innerHTML = t.styleProfanity + ' <span class="lock-icon">🔒</span>';
-            styleOptions[3].querySelector('.style-desc').textContent = t.lockedDesc;
             
             // 맥락 섹션
             document.querySelector('.context-label').textContent = t.contextLabel;
@@ -945,30 +907,15 @@
             }, 600);
 
             try {
-                let apiUrl, apiBody;
-                
-                // 욕설 모드일 때는 ChatGPT API 사용
-                if (currentStyle === 'profanity') {
-                    apiUrl = 'https://api.openai.com/v1/chat/completions';
-                    apiBody = {
-                        model: 'gpt-4',
-                        messages: [{
-                            role: 'user',
-                            content: generatePrompt(inputText, currentDirection, currentStyle, contextText, currentPoliteness)
-                        }],
-                        max_tokens: 1000
-                    };
-                } else {
-                    apiUrl = 'https://api.anthropic.com/v1/messages';
-                    apiBody = {
-                        model: 'claude-haiku-4-5-20251001',
-                        max_tokens: 1000,
-                        messages: [{
-                            role: 'user',
-                            content: generatePrompt(inputText, currentDirection, currentStyle, contextText, currentPoliteness)
-                        }]
-                    };
-                }
+                const apiUrl = 'https://api.anthropic.com/v1/messages';
+                const apiBody = {
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 1000,
+                    messages: [{
+                        role: 'user',
+                        content: generatePrompt(inputText, currentDirection, currentStyle, contextText, currentPoliteness)
+                    }]
+                };
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -981,15 +928,10 @@
                 const data = await response.json();
                 
                 // API 응답 파싱
-                let fullResponse;
-                if (currentStyle === 'profanity') {
-                    fullResponse = data.choices?.[0]?.message?.content || '';
-                } else {
-                    fullResponse = data.content
-                        .filter(item => item.type === 'text')
-                        .map(item => item.text)
-                        .join('\n');
-                }
+                const fullResponse = data.content
+                    .filter(item => item.type === 'text')
+                    .map(item => item.text)
+                    .join('\n');
 
                 // 프로그레스바 100% 완료
                 clearInterval(progressInterval);
@@ -1033,41 +975,74 @@
         function generatePrompt(text, direction, style, context, politeness) {
             const isKoToEn = direction === 'ko-en';
             
-            let styleCode = '';
-            if (style === 'formal') {
-                styleCode = 'formal';
-            } else if (style === 'casual') {
-                styleCode = 'casual';
-            } else if (style === 'slang') {
-                styleCode = 'slang/trendy';
-            } else if (style === 'profanity') {
-                styleCode = 'profanity (must include swear words)';
+            let styleInstruction = '';
+            
+            if (isKoToEn) {
+                // 한국어 → 영어
+                if (style === 'formal') {
+                    styleInstruction = `Translate to formal, professional English.
+Example: "감사합니다" → "Thank you very much"`;
+                } else if (style === 'casual') {
+                    styleInstruction = `Translate to natural conversational English. Provide 2-3 alternatives.
+
+Examples:
+- "안녕" → "Hey / Hi / What's up"
+- "사랑해" → "Love you / I'm crazy about you"`;
+                } else if (style === 'slang') {
+                    styleInstruction = `Translate to trendy internet slang that Gen Z uses.
+
+🔥 CRITICAL: Provide 3-5 creative alternatives separated by " / ". NO boring standard translations.
+
+Examples:
+- "사랑해" → "I'm simping for you / You're my vibe / I'm obsessed / You're my person"
+- "대박" → "That's fire / No cap that's insane / That hits different / It's bussin"
+
+Use expressions young people use on TikTok, Twitter, Instagram.`;
+                }
+            } else {
+                // 영어 → 한국어
+                if (style === 'formal') {
+                    styleInstruction = `Translate to formal, polite Korean.
+Example: "Thank you" → "감사합니다"`;
+                } else if (style === 'casual') {
+                    styleInstruction = `Translate to natural conversational Korean. Provide 2-3 alternatives.
+
+Examples:
+- "Hi" → "안녕 / 하이"
+- "I love you" → "사랑해 / 너 진짜 좋아해"`;
+                } else if (style === 'slang') {
+                    styleInstruction = `Translate to trendy Korean internet slang that young Koreans use.
+
+🔥 CRITICAL: Provide 3-5 creative alternatives separated by " / ". NO boring standard translations.
+
+Examples:
+- "I love you" → "사랑해 / 개좋아해 / 완전 좋아함 / 너밖에 없어"
+- "Amazing" → "대박 / 미쳤다 / 개쩐다 / 완전 좋음"
+
+Use expressions Korean Gen Z uses on Instagram, Twitter, KakaoTalk.`;
+                }
             }
 
-            let parts = [];
+            let parts = [styleInstruction];
             
-            // 기본 번역 지시
-            if (isKoToEn) {
-                parts.push(`Translate Korean to English, style: ${styleCode}`);
-            } else {
-                parts.push(`Translate English to Korean, style: ${styleCode}`);
-                // 존댓말/반말
+            // 존댓말/반말 (영→한만)
+            if (!isKoToEn) {
                 if (politeness === 'formal') {
-                    parts.push('Use polite form (존댓말)');
+                    parts.push('Use polite/formal speech level (존댓말: ~습니다, ~요, ~세요)');
                 } else {
-                    parts.push('Use casual form (반말)');
+                    parts.push('Use casual/informal speech level (반말: ~다, ~야, ~어)');
                 }
-                // 발음 표기
                 parts.push('Add "---PRONUNCIATION---" and romanization if result has full Korean words (skip if only initials like ㄹㅇ, ㅋㅋ)');
             }
             
             // 맥락
             if (context) {
-                parts.push(`Context: ${context}`);
+                parts.push(`Context/Situation: ${context}`);
+                parts.push('Consider the context and adjust the expression accordingly.');
             }
             
-            parts.push(`Text: ${text}`);
-            parts.push('Output only the translation, no explanations.');
+            parts.push(`\nText: ${text}`);
+            parts.push('\nOutput ONLY the translation. For slang/casual: provide multiple alternatives with " / ". No explanations.');
             
             return parts.join('\n');
         }
